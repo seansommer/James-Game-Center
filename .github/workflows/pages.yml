@@ -1,0 +1,54 @@
+name: Test and publish James Game Center
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: james-game-center-pages
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci --no-fund; else npm install --no-fund; fi
+      - name: Build hub and artwork
+        run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Check navigation, shared progress and phone layout
+        run: npm run test:browser
+      - name: Keep verification and dependency lock
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: james-center-verification
+          path: |
+            dist/qa/
+            package-lock.json
+          retention-days: 14
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

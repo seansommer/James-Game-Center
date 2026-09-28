@@ -1,0 +1,3 @@
+// Add future playable James adventures here. Do not present concepts as released games.
+export const GAMES=[{id:'hulk-racer',title:'Jamesy The Hulk Racer',subtitle:'Collect. Dodge. Power up.',url:'/James-Hulk-Racer/',icon:'/James-Hulk-Racer/assets/icon-512.png',art:'/James-Hulk-Racer/assets/park.webp',genre:'3D SUPERHERO RUNNER',worlds:3,status:'playable'}];
+export const WORLDS=[{id:'park',name:'Emerald Park',tag:'Your city needs a little hero.',treasures:'Power gems + golden stars'},{id:'cavern',name:'Crystal Caverns',tag:'A glowing underground adventure.',treasures:'Crystal shards + moon crystals'},{id:'volcano',name:'Volcano Jungle',tag:'Turn up your superhero power.',treasures:'Sunstones + golden suns'}];

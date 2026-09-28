@@ -1,0 +1,3 @@
+[submodule "shared-racer"]
+	path = shared-racer
+	url = https://github.com/seansommer/James-Hulk-Racer.git
