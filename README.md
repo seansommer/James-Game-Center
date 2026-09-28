@@ -2,67 +2,51 @@
 
 **Little superheroes. Big adventures.**
 
-A green-and-purple home for Jamesy's superhero games. The first playable app is [Jamesy The Hulk Racer](https://seansommer.github.io/James-Hulk-Racer/), a 3D half-pipe runner in three worlds.
+The green-and-purple home for Jamesy's games, with Jamesy The Hulk Racer, Hall of Fame, Player Cards and protected Master Controls.
 
-**Hub:** https://seansommer.github.io/James-Game-Center/
+**Hub:** https://seansommer.github.io/James-Game-Center/  
+**Racer:** https://seansommer.github.io/James-Hulk-Racer/
 
-## New: Hall of Fame, Player Cards and protected Master Controls
+## Realtime Database — v1.2
 
-The shared player headquarters now offers six trophy categories, ranked tables with clickable player names, searchable lifetime player cards, and a protected master account. **Sean is the only initial approved player after private Firebase activation.** No old Game Center users, demo players or sample scores are imported.
+The hub and racer now use **Firebase Realtime Database** at:
 
-The Hall categories are Most Points, Most Adventures, Most Worlds Completed, Highest Average, Highest Single Run and Longest Clean Streak. Little Hero and Superhero records stay separate, ties share a rank, averages require three results, and a new master card is unranked until it earns a result.
+`https://james-game-center-default-rtdb.firebaseio.com/`
 
-Cards include Master/Player role, points, adventures, completions, averages, best run, clean streak, treasures, smashes, bursts, clean finishes, completion rate, and all three worlds' best scores and medals. Only approved members can view shared records. Emails are never shown on cards or copied into shared score documents.
+Only the new **james-game-center** Firebase project is used. Firestore and Google sign-in are no longer required by the runtime. Email-plus-nickname entry uses Anonymous Authentication, as in the other Game Centers. No raw email is stored in the database or displayed on player cards. This is trust-based matching, not email verification.
 
-**Activation guide:** [Hall of Fame and master account setup](https://github.com/seansommer/James-Hulk-Racer/blob/main/docs/PLAYER_CENTER.md).
+## One initial master, no imported players
 
-Enable Google Authentication in the new **james-game-center** Firebase project and publish the racer's updated full `firestore.rules`. Sign in on the website, copy your new James User ID, then set the private Firestore document `_admin/launch`, field `masterUid` (string), to that exact UID. Press **Check access**. Only that configured identity may activate the initial **Sean · Master** card. The client cannot claim, reassign, demote or delete the master. No live activation happens merely by publishing code.
+Enable Anonymous Authentication. Publish this version's full **firebase-database.rules.json** in **Realtime Database → Rules**, not Firestore. On the hub, enter your email and **Sean** as the sign-in nickname. Copy the displayed User ID. In Realtime Database → Data add `_admin/masterUid` as a string with that exact ID. Return and press Check access. Only the privately designated identity can activate **Sean · Master**.
 
-Other identities are not automatically approved. Leave **Add a player later** closed to keep the roster master-only. Visitors can practice locally without creating a player card or appearing in rankings. Master Controls can explicitly approve additional players later or pause/restore their access without deleting their records.
+The rule file is generated from `shared-racer/scripts/database-rules.mjs`, tested by the racer's emulator suite, and published at `firebase-database.rules.json` on both sites. It does not publish itself to the Firebase console.
 
-## Included
+Complete activation/recovery guide:
+https://github.com/seansommer/James-Hulk-Racer/blob/main/docs/PLAYER_CENTER.md
 
-- Responsive Game Center, featured racer tile and three world launch links.
-- Shared registered Google identity, account-isolated player progress, Hall of Fame and cards.
-- Personal trophy room remains separate from the competitive Hall.
-- Original hub badge, phone icons and sharing artwork generated from vector source.
-- Actual in-game world renders linked from the racer, not AI concept screenshots.
-- Music/effect sliders, gentle effects, install instructions and scoped offline shell.
-- A simple `src/games.js` catalogue for future released James superhero games.
+No first-visitor claim, default admin password, automatic player signup, sample scores or imported family users. Leave Add a player later closed to keep the approved roster master-only. Knowing the master's email/nickname is not enough on another browser: privately authorize its User ID at `_admin/masterDevices/<authUid>` (boolean true) to use the SAME master card. Keep the original `masterUid` unchanged.
 
-The new hub is separate from the family and SUJA centers. It does not import their accounts, roles or scores. There is no messaging, advertising or analytics. Google Authentication knows the chosen account's email; Firestore cards and leaderboards use nicknames only. This is a private approved-family setup, not a public child-account service.
+## Hall of Fame and cards
 
-## Publish both repositories
+Six categories: Most Points, Most Adventures, Most Worlds Completed, Highest Average, Highest Single Run and Longest Clean Streak. Ties share a rank; the average category requires three attempts. Little Hero and Superhero stay separate. Cards show roles, lifetime totals, world bests and medals. Only approved members can view shared records.
 
-For **both** `James-Game-Center` and `James-Hulk-Racer`, open **Settings → Pages → Source → GitHub Actions**. Run the publish workflow if an earlier attempt occurred before Pages was enabled. Both new builds must deploy so the shared account behavior is consistent.
+Both apps use immutable per-player run receipts from Realtime Database to derive totals. Retry uploads are idempotent. Local practice, account caches and pending results remain isolated. Old Firestore data is left intact but NOT automatically migrated. Do not delete it if it contains records you need. Signed-in results from this version go only to Realtime Database. A display-nickname change does not change the original sign-in pair.
 
-The racer's deployment supplies the linked game-preview images. Gradient placeholders keep the hub usable while they load. Hub icons and share artwork build independently.
-
-## Saving and migration
-
-Sign in before racing to add registered records. Uploaded results follow the same Google identity across devices. Pending results stay on the original browser/device and retry under the original UID, without double-counting. Practice and registered caches are separate. The original anonymous practice backup remains owner-private but is not guessed into lifetime stats that the old schema did not track.
-
-The full private setup and limitations are in the [activation guide](https://github.com/seansommer/James-Hulk-Racer/blob/main/docs/PLAYER_CENTER.md). Live Google sign-in and Firebase console state must be verified by the owner. App Check enforcement is not enabled by this update. Scores are client-measured for friendly competition, not authoritative anti-cheat rankings.
+The source still includes responsive game/world tiles, original icons/share artwork, actual racer preview images, a trophy room, music settings, gentle effects, install directions and the scoped offline shell. Existing family/SUJA databases and accounts are not modified.
 
 ## Development
 
-The `shared-racer` Git submodule pins the exact shared profile, account, rules-tested model, UI and music source. Vite bundles it locally; the hub never executes an unpinned remote script at runtime.
+The shared-racer Git submodule pins tested shared profile/account/UI source. Vite bundles that source locally; the published hub does not execute unpinned remote code.
 
 ```sh
 git clone --recurse-submodules https://github.com/seansommer/James-Game-Center.git
 cd James-Game-Center
 npm install
-npm run dev
-```
-
-For an existing checkout run `git submodule update --init --recursive` before building. Update the submodule deliberately when shared behavior changes.
-
-```sh
 npm run build
 npx playwright install chromium
 npm run test:browser
 ```
 
-Node 22.12+ is required. Direct dependencies are pinned; CI exports its resolved lock in the verification artifact. Browser checks cover the catalogue, nickname/practice persistence, trophies, phone layout, Hall of Fame and player cards using an in-memory test fixture. Test fixtures never create production accounts. Physical Safari and live authentication tests remain separate.
+Existing checkouts: `git submodule update --init --recursive`. Use Node 22.12+. Deploy both repositories through GitHub Actions Pages so account behavior matches. Browser fixtures never create production accounts. Physical iPhone/Safari and live Firebase console setup still require owner testing. Scores are for friendly family play, not authoritative anti-cheat competition.
 
 Created by Sean.
